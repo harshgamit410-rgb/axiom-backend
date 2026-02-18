@@ -12,17 +12,29 @@ async function loadPosts() {
     const card = document.createElement("div");
     card.className = "card";
 
-    let remixButton = "";
-    if (post.type !== "remix") {
-      remixButton = `<button onclick="remixPost('${post.id}')">🔁 Remix</button>`;
+    let parentBlock = "";
+
+    if (post.type === "remix" && post.parent_image) {
+      parentBlock = `
+        <div style="background:#1b263b;padding:10px;margin-bottom:8px;border-radius:8px;">
+          <small style="color:#aaa;">🔁 Remixed</small>
+          <div style="display:flex;gap:10px;margin-top:6px;">
+            <img src="${post.parent_image}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;" />
+            <div>
+              <small style="color:#ccc;">${post.parent_caption || ""}</small>
+            </div>
+          </div>
+        </div>
+      `;
     }
 
     card.innerHTML = `
+      ${parentBlock}
       <img src="${post.image_url}" />
       <div class="card-body">
         <strong>${post.email}</strong>
         <p>${post.caption}</p>
-        ${remixButton}
+        <button onclick="remixPost('${post.id}')">🔁 Remix</button>
       </div>
     `;
 
@@ -45,7 +57,7 @@ async function createPost() {
 
   const data = await res.json();
   if (!res.ok) {
-    alert("Post failed: " + (data.error || "Unknown error"));
+    alert("Post failed: " + JSON.stringify(data));
     return;
   }
 
@@ -56,8 +68,6 @@ async function remixPost(parentId) {
   const caption = prompt("Add remix caption:");
   if (!caption) return;
 
-  const token = localStorage.getItem("token");
-
   const res = await fetch("/api/posts", {
     method: "POST",
     headers: {
@@ -65,7 +75,6 @@ async function remixPost(parentId) {
       "Authorization": "Bearer " + token
     },
     body: JSON.stringify({
-      image_url: "https://picsum.photos/300",
       caption,
       type: "remix",
       parent_id: parentId
@@ -73,9 +82,8 @@ async function remixPost(parentId) {
   });
 
   const data = await res.json();
-
   if (!res.ok) {
-    alert("Post failed: " + (data.error || "Unknown error"));
+    alert("Remix failed: " + JSON.stringify(data));
     return;
   }
 
