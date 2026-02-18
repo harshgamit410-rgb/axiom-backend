@@ -9,4 +9,6 @@ export async function initDB() {
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `);
+
+  console.log("Users table ready");
 }
