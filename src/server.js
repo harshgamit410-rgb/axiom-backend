@@ -1,4 +1,3 @@
-import pool from "./db.js";
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import path from "path";
@@ -14,50 +13,41 @@ import { initPosts } from "./init-posts.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = Fastify({ bodyLimit: 10485760 });
+const app = Fastify();
 
-// Init tables
+/* INIT TABLES */
 await initDB();
 await initPosts();
 
-// API Routes
+/* REGISTER ROUTES (BEFORE LISTEN) */
 await app.register(loginRoute, { prefix: "/api" });
 await app.register(postRoutes, { prefix: "/api" });
 await app.register(profileRoutes, { prefix: "/api" });
 
-// Static files
-await app.register(fastifyStatic, {
-  root: path.join(__dirname, "../public"),
-  prefix: "/",   // important
+/* VERSION CHECK */
+app.get("/__version", async () => {
+  return { version: "ROUTE_FIX_V1" };
 });
 
-// Health
+/* STATIC FILES */
+await app.register(fastifyStatic, {
+  root: path.join(__dirname, "../public"),
+});
+
+/* ROOT */
+app.get("/", async (req, reply) => {
+  return reply.sendFile("index.html");
+});
+
+/* HEALTH */
 app.get("/ping", async () => {
   return { status: "ok" };
 });
 
-// Version
-app.get("/__version", async () => {
-  return { version: "STATIC_FIX_V2" };
-});
-
-// Start
+/* START SERVER (ALWAYS LAST) */
 await app.listen({
   port: process.env.PORT || 4000,
   host: "0.0.0.0"
 });
 
 console.log("SERVER LIVE");
-// FORCE DEPLOY Wed Feb 18 16:38:28 IST 2026
-
-// TEMP MIGRATION ROUTE (REMOVE AFTER RUN)
-app.get("/__migrate_v2", async () => {
-  try {
-    await pool.query("ALTER TABLE posts ADD COLUMN IF NOT EXISTS type TEXT DEFAULT 'post'");
-    await pool.query("ALTER TABLE posts ADD COLUMN IF NOT EXISTS parent_id UUID");
-    return { status: "migration_complete" };
-  } catch (err) {
-    return { error: err.message };
-  }
-});
-
