@@ -12,21 +12,29 @@ const app = Fastify();
 /* API Routes */
 await app.register(loginRoute, { prefix: "/api" });
 
-/* Serve Frontend */
+/* Serve Static Files */
 await app.register(fastifyStatic, {
-  root: path.join(__dirname, "../public"),
-  prefix: "/"
+  root: path.join(__dirname, "../public")
 });
 
-/* Root Route */
-app.get("/", async (req, reply) => {
+/* Explicit Root Route */
+app.get("/", async (request, reply) => {
   return reply.sendFile("index.html");
 });
 
-/* Start Server */
-await app.listen({
-  port: process.env.PORT || 4000,
-  host: "0.0.0.0"
+/* Health Check */
+app.get("/ping", async () => {
+  return { status: "ok" };
 });
 
-console.log("SERVER LIVE");
+/* Start Server */
+try {
+  await app.listen({
+    port: process.env.PORT || 4000,
+    host: "0.0.0.0"
+  });
+  console.log("SERVER LIVE");
+} catch (err) {
+  console.error(err);
+  process.exit(1);
+}
