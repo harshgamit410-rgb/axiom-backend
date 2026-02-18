@@ -1,3 +1,4 @@
+import { debugRoute } from "./debug.js";
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import path from "path";
@@ -34,6 +35,7 @@ app.get("/ping", async () => {
   return { status: "ok" };
 });
 
+debugRoute(app);
 await app.listen({
   port: process.env.PORT || 4000,
   host: "0.0.0.0"
