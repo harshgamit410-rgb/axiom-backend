@@ -15,10 +15,8 @@ async function start() {
 
     await app.register(fastifyStatic, {
       root: path.join(__dirname, "../public"),
-    });
-
-    app.get("/", async (req, reply) => {
-      return reply.sendFile("index.html");
+      prefix: "/",
+      index: ["index.html"]
     });
 
     await app.listen({
