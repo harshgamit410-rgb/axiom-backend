@@ -5,13 +5,20 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <div class="topbar">
-    <h2>Axiom Feed</h2>
-    <button onclick="logout()">Logout</button>
-  </div>
 
-  <div id="feed" class="feed"></div>
+<nav class="navbar">
+  <h2>Axiom</h2>
+  <button onclick="logout()">Logout</button>
+</nav>
 
-  <script src="/js/dashboard.js"></script>
+<div class="create-box">
+  <input id="image_url" placeholder="Image URL">
+  <input id="caption" placeholder="Write a caption...">
+  <button onclick="createPost()">Post</button>
+</div>
+
+<div id="feed" class="feed-grid"></div>
+
+<script src="/js/dashboard.js"></script>
 </body>
 </html>
