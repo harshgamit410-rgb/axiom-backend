@@ -3,7 +3,7 @@ document.getElementById("loginBtn").onclick = async () => {
   const password = document.getElementById("password").value;
   const msg = document.getElementById("msg");
 
-  const res = await fetch("https://axiom-backend-gxpv.onrender.com/api/auth/login", {
+  const res = await fetch("https://axiom-backend-na9b.onrender.com/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password })
