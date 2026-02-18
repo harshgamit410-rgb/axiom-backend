@@ -7,20 +7,30 @@ import loginRoute from "./routes/auth.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = Fastify();
+const app = Fastify({ logger: true });
 
-/* API Routes */
-await app.register(loginRoute, { prefix: "/api" });
+async function start() {
+  try {
+    await app.register(loginRoute, { prefix: "/api" });
 
-/* Serve Frontend */
-await app.register(fastifyStatic, {
-  root: path.join(__dirname, "../public"),
-});
+    await app.register(fastifyStatic, {
+      root: path.join(__dirname, "../public"),
+    });
 
-/* Start Server */
-await app.listen({
-  port: process.env.PORT || 4000,
-  host: "0.0.0.0"
-});
+    app.get("/", async (req, reply) => {
+      return reply.sendFile("index.html");
+    });
 
-console.log("SERVER LIVE");
+    await app.listen({
+      port: process.env.PORT || 4000,
+      host: "0.0.0.0"
+    });
+
+    console.log("SERVER LIVE");
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
+}
+
+start();
