@@ -1,0 +1,39 @@
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+navigator.mediaDevices.getUserMedia({ video: true })
+  .then(stream => {
+    video.srcObject = stream;
+  })
+  .catch(err => {
+    alert("Camera access denied");
+  });
+
+function snap() {
+  canvas.style.display = "block";
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0);
+}
+
+async function postImage() {
+  const token = localStorage.getItem("token");
+  const caption = document.getElementById("caption").value;
+
+  const imageData = canvas.toDataURL("image/png");
+
+  await fetch("/api/posts", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    },
+    body: JSON.stringify({
+      image_url: imageData,
+      caption
+    })
+  });
+
+  window.location.href = "/dashboard.html";
+}
