@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { registerUser, loginUser } from "../store/auth.js";
+import { authGuard } from "../middleware/auth.js";
 
 const SECRET = "axiom-secret";
 
@@ -30,6 +31,13 @@ export default async function authRoutes(app) {
     );
 
     return { login: true, token };
+  });
+
+  app.get("/protected", { preHandler: authGuard }, async (req, reply) => {
+    return {
+      message: "Protected OK",
+      user: req.user
+    };
   });
 
 }
