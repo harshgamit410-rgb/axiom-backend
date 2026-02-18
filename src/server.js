@@ -13,7 +13,7 @@ import { initPosts } from "./init-posts.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = Fastify();
+const app = Fastify({ bodyLimit: 10485760 });
 
 // Init tables
 await initDB();

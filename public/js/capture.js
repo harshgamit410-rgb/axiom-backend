@@ -12,18 +12,27 @@ navigator.mediaDevices.getUserMedia({ video: true })
 
 function snap() {
   canvas.style.display = "block";
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  ctx.drawImage(video, 0, 0);
+
+  // resize to small square to reduce size
+  canvas.width = 400;
+  canvas.height = 400;
+
+  ctx.drawImage(video, 0, 0, 400, 400);
 }
 
 async function postImage() {
   const token = localStorage.getItem("token");
   const caption = document.getElementById("caption").value;
 
-  const imageData = canvas.toDataURL("image/png");
+  if (!token) {
+    alert("Not logged in");
+    return;
+  }
 
-  await fetch("/api/posts", {
+  // compress image heavily
+  const imageData = canvas.toDataURL("image/jpeg", 0.5);
+
+  const res = await fetch("/api/posts", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -34,6 +43,11 @@ async function postImage() {
       caption
     })
   });
+
+  if (!res.ok) {
+    alert("Post failed");
+    return;
+  }
 
   window.location.href = "/dashboard.html";
 }
