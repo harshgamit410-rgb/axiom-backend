@@ -1,21 +1,26 @@
-import { authGuard } from "./middleware/auth.js";
-import loginRoute from "./routes/auth.js";
 import Fastify from "fastify";
+import fastifyStatic from "@fastify/static";
+import path from "path";
+import { fileURLToPath } from "url";
+import loginRoute from "./routes/auth.js";
 
-console.log("BOOT_FRESH");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = Fastify();
 
-app.get("/", async () => "SERVER_VERSION_777");
+/* API Routes */
+await app.register(loginRoute, { prefix: "/api" });
 
-app.get("/__health", async () => ({ status: "ok" }));
-
-app.get("/api/test", async () => "API_OK");
-app.get("/api/protected", { preHandler: authGuard }, async (req) => {
-  return { message: "Protected OK", user: req.user };
+/* Serve Frontend */
+await app.register(fastifyStatic, {
+  root: path.join(__dirname, "../public"),
 });
 
-await app.register(loginRoute, { prefix: "/api" });
-console.log(app.printRoutes());
-console.log(app.printRoutes())
-await app.listen({ port: process.env.PORT || 4000, host: "0.0.0.0" });
+/* Start Server */
+await app.listen({
+  port: process.env.PORT || 4000,
+  host: "0.0.0.0"
+});
+
+console.log("SERVER LIVE");
