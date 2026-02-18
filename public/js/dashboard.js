@@ -1,7 +1,5 @@
-const API = "";
-
-const token = localStorage.getItem("token");
-if (!token) window.location.href = "/";
+const tokenCheck = localStorage.getItem("token");
+if (!tokenCheck) window.location.href = "/";
 
 async function loadPosts() {
   const res = await fetch("/api/posts");
@@ -25,10 +23,18 @@ async function loadPosts() {
 }
 
 async function createPost() {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    alert("Session expired. Please login again.");
+    window.location.href = "/";
+    return;
+  }
+
   const image_url = document.getElementById("image_url").value;
   const caption = document.getElementById("caption").value;
 
-  await fetch("/api/posts", {
+  const res = await fetch("/api/posts", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -36,6 +42,13 @@ async function createPost() {
     },
     body: JSON.stringify({ image_url, caption })
   });
+
+  const data = await res.json();
+
+  if (data.error) {
+    alert("Post failed: " + data.error);
+    return;
+  }
 
   loadPosts();
 }
