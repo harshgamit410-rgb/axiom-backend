@@ -1,5 +1,5 @@
-const tokenCheck = localStorage.getItem("token");
-if (!tokenCheck) window.location.href = "/";
+const token = localStorage.getItem("token");
+if (!token) window.location.href = "/";
 
 async function loadPosts() {
   const res = await fetch("/api/posts");
@@ -12,23 +12,17 @@ async function loadPosts() {
     const card = document.createElement("div");
     card.className = "card";
 
-    let parentBlock = "";
-    if (post.parent_caption) {
-      parentBlock = `
-        <div style="border-left:3px solid #888;padding-left:10px;margin-bottom:8px;">
-          <small>Remix of:</small>
-          <p>${post.parent_caption}</p>
-        </div>
-      `;
+    let remixButton = "";
+    if (post.type !== "remix") {
+      remixButton = `<button onclick="remixPost('${post.id}')">🔁 Remix</button>`;
     }
 
     card.innerHTML = `
-      ${parentBlock}
       <img src="${post.image_url}" />
       <div class="card-body">
         <strong>${post.email}</strong>
         <p>${post.caption}</p>
-        <button onclick="remixPost('${post.id}', '${post.image_url}')">🔁 Remix</button>
+        ${remixButton}
       </div>
     `;
 
@@ -36,9 +30,9 @@ async function loadPosts() {
   });
 }
 
-async function createPost(data) {
-  const token = localStorage.getItem("token");
-  if (!token) return;
+async function createPost() {
+  const image_url = document.getElementById("image_url").value;
+  const caption = document.getElementById("caption").value;
 
   const res = await fetch("/api/posts", {
     method: "POST",
@@ -46,41 +40,46 @@ async function createPost(data) {
       "Content-Type": "application/json",
       "Authorization": "Bearer " + token
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify({ image_url, caption })
   });
 
-  const result = await res.json();
-  if (result.error) {
-    alert("Post failed: " + result.error);
+  const data = await res.json();
+  if (!res.ok) {
+    alert("Post failed: " + (data.error || "Unknown error"));
     return;
   }
 
   loadPosts();
 }
 
-async function remixPost(parent_id, image_url) {
+async function remixPost(parentId) {
   const caption = prompt("Add remix caption:");
   if (!caption) return;
 
-  await createPost({
-    image_url: image_url,
-    caption: caption,
-    type: "remix",
-    parent_id: parent_id
-  });
-}
+  const token = localStorage.getItem("token");
 
-async function normalPost() {
-  const image_url = document.getElementById("image_url").value;
-  const caption = document.getElementById("caption").value;
-
-  await createPost({
-    image_url,
-    caption,
-    type: "post"
+  const res = await fetch("/api/posts", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    },
+    body: JSON.stringify({
+      image_url: "https://picsum.photos/300",
+      caption,
+      type: "remix",
+      parent_id: parentId
+    })
   });
 
-  document.getElementById("caption").value = "";
+  const data = await res.json();
+
+  if (!res.ok) {
+    alert("Post failed: " + (data.error || "Unknown error"));
+    return;
+  }
+
+  loadPosts();
 }
 
 function logout() {
