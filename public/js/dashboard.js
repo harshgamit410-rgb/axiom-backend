@@ -36,32 +36,51 @@ async function loadPosts() {
   });
 }
 
-async function createPost(type = "post", parent_id = null, image_override = null) {
+async function createPost(data) {
   const token = localStorage.getItem("token");
   if (!token) return;
 
-  const image_url = image_override || document.getElementById("image_url").value;
-  const caption = document.getElementById("caption").value;
-
-  await fetch("/api/posts", {
+  const res = await fetch("/api/posts", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": "Bearer " + token
     },
-    body: JSON.stringify({ image_url, caption, type, parent_id })
+    body: JSON.stringify(data)
   });
 
-  document.getElementById("caption").value = "";
+  const result = await res.json();
+  if (result.error) {
+    alert("Post failed: " + result.error);
+    return;
+  }
+
   loadPosts();
 }
 
-function remixPost(parent_id, image_url) {
+async function remixPost(parent_id, image_url) {
   const caption = prompt("Add remix caption:");
   if (!caption) return;
 
-  document.getElementById("caption").value = caption;
-  createPost("remix", parent_id, image_url);
+  await createPost({
+    image_url: image_url,
+    caption: caption,
+    type: "remix",
+    parent_id: parent_id
+  });
+}
+
+async function normalPost() {
+  const image_url = document.getElementById("image_url").value;
+  const caption = document.getElementById("caption").value;
+
+  await createPost({
+    image_url,
+    caption,
+    type: "post"
+  });
+
+  document.getElementById("caption").value = "";
 }
 
 function logout() {
