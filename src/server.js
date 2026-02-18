@@ -1,8 +1,11 @@
+import postRoutes from './routes/posts.js';
+import { initPosts } from './init-posts.js';
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import path from "path";
 import { fileURLToPath } from "url";
 import loginRoute from "./routes/auth.js";
+await app.register(postRoutes, { prefix: '/api' });
 import { initDB } from "./init-db.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,9 +15,11 @@ const app = Fastify();
 
 // Initialize Database
 await initDB();
+await initPosts();
 
 // API Routes
 await app.register(loginRoute, { prefix: "/api" });
+await app.register(postRoutes, { prefix: '/api' });
 
 // Static Files
 await app.register(fastifyStatic, {
