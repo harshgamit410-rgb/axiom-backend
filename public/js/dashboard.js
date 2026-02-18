@@ -13,17 +13,12 @@ async function loadPosts() {
     card.className = "card";
 
     let parentBlock = "";
-
     if (post.type === "remix" && post.parent_image) {
       parentBlock = `
-        <div style="background:#1b263b;padding:10px;margin-bottom:8px;border-radius:8px;">
-          <small style="color:#aaa;">🔁 Remixed</small>
-          <div style="display:flex;gap:10px;margin-top:6px;">
-            <img src="${post.parent_image}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;" />
-            <div>
-              <small style="color:#ccc;">${post.parent_caption || ""}</small>
-            </div>
-          </div>
+        <div style="border:1px solid #444; padding:5px; margin-bottom:5px;">
+          <small>Remix of:</small>
+          <img src="${post.parent_image}" style="width:100%;max-height:150px;object-fit:cover;">
+          <p style="font-size:12px;">${post.parent_caption}</p>
         </div>
       `;
     }
@@ -34,7 +29,7 @@ async function loadPosts() {
       <div class="card-body">
         <strong>${post.email}</strong>
         <p>${post.caption}</p>
-        <button onclick="remixPost('${post.id}')">🔁 Remix</button>
+        <button onclick="remixPost('${post.id}', '${post.image_url}')">🔁 Remix</button>
       </div>
     `;
 
@@ -46,7 +41,7 @@ async function createPost() {
   const image_url = document.getElementById("image_url").value;
   const caption = document.getElementById("caption").value;
 
-  const res = await fetch("/api/posts", {
+  await fetch("/api/posts", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -55,16 +50,11 @@ async function createPost() {
     body: JSON.stringify({ image_url, caption })
   });
 
-  const data = await res.json();
-  if (!res.ok) {
-    alert("Post failed: " + JSON.stringify(data));
-    return;
-  }
-
   loadPosts();
 }
 
-async function remixPost(parentId) {
+async function remixPost(parentId, parentImage) {
+
   const caption = prompt("Add remix caption:");
   if (!caption) return;
 
@@ -75,13 +65,15 @@ async function remixPost(parentId) {
       "Authorization": "Bearer " + token
     },
     body: JSON.stringify({
-      caption,
+      image_url: parentImage,   // 🔥 IMPORTANT FIX
+      caption: caption,
       type: "remix",
       parent_id: parentId
     })
   });
 
   const data = await res.json();
+
   if (!res.ok) {
     alert("Remix failed: " + JSON.stringify(data));
     return;
