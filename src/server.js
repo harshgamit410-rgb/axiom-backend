@@ -1,3 +1,4 @@
+import pool from "./db.js";
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import path from "path";
@@ -48,3 +49,15 @@ await app.listen({
 
 console.log("SERVER LIVE");
 // FORCE DEPLOY Wed Feb 18 16:38:28 IST 2026
+
+// TEMP MIGRATION ROUTE (REMOVE AFTER RUN)
+app.get("/__migrate_v2", async () => {
+  try {
+    await pool.query("ALTER TABLE posts ADD COLUMN IF NOT EXISTS type TEXT DEFAULT 'post'");
+    await pool.query("ALTER TABLE posts ADD COLUMN IF NOT EXISTS parent_id UUID");
+    return { status: "migration_complete" };
+  } catch (err) {
+    return { error: err.message };
+  }
+});
+
