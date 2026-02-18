@@ -4,20 +4,18 @@ import { authGuard } from "../middleware/auth.js";
 
 export default async function postRoutes(app) {
 
-  // Create post (post / story / remix)
   app.post("/posts", { preHandler: authGuard }, async (req, reply) => {
     const { image_url, caption, visibility, type, parent_id } = req.body;
 
     const id = crypto.randomUUID();
 
     await pool.query(
-      `INSERT INTO posts 
-       (id, user_id, image_url, caption, visibility, type, parent_id)
+      `INSERT INTO posts (id, user_id, image_url, caption, visibility, type, parent_id)
        VALUES ($1,$2,$3,$4,$5,$6,$7)`,
       [
         id,
         req.user.id,
-        image_url,
+        image_url || null,
         caption || "",
         visibility || "public",
         type || "post",
@@ -28,11 +26,11 @@ export default async function postRoutes(app) {
     return { created: true };
   });
 
-  // Get feed with remix relationship
   app.get("/posts", async () => {
+
     const result = await pool.query(`
       SELECT 
-        p.*, 
+        p.*,
         u.email,
         parent.caption AS parent_caption,
         parent.image_url AS parent_image
@@ -44,5 +42,4 @@ export default async function postRoutes(app) {
 
     return result.rows;
   });
-
 }
