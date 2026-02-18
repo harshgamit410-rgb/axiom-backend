@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import path from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 import loginRoute from "./routes/auth.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -13,10 +14,17 @@ async function start() {
   try {
     await app.register(loginRoute, { prefix: "/api" });
 
+    // DEBUG ROUTE
+    app.get("/debug", async () => {
+      return {
+        dirname: __dirname,
+        files: fs.readdirSync(__dirname)
+      };
+    });
+
     await app.register(fastifyStatic, {
       root: path.join(__dirname, "../public"),
       prefix: "/",
-      index: ["index.html"]
     });
 
     await app.listen({
