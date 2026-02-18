@@ -1,26 +1,31 @@
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
-
-const authUsers = [];
+import pool from "../db.js";
 
 export async function registerUser(email, password) {
   const hash = await bcrypt.hash(password, 10);
-  const user = {
-    id: crypto.randomUUID(),
-    email,
-    password: hash,
-    createdAt: Date.now()
-  };
-  authUsers.push(user);
-  return { id: user.id, email: user.email };
+  const id = crypto.randomUUID();
+
+  await pool.query(
+    "INSERT INTO users (id, email, password) VALUES ($1, $2, $3)",
+    [id, email, hash]
+  );
+
+  return { id, email };
 }
 
 export async function loginUser(email, password) {
-  const user = authUsers.find(u => u.email === email);
-  if (!user) return null;
+  const result = await pool.query(
+    "SELECT * FROM users WHERE email = $1",
+    [email]
+  );
+
+  if (result.rows.length === 0) return null;
+
+  const user = result.rows[0];
 
   const ok = await bcrypt.compare(password, user.password);
   if (!ok) return null;
 
-  return user;
+  return { id: user.id, email: user.email };
 }
