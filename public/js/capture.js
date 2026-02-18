@@ -12,42 +12,52 @@ navigator.mediaDevices.getUserMedia({ video: true })
 
 function snap() {
   canvas.style.display = "block";
-
-  // resize to small square to reduce size
-  canvas.width = 400;
-  canvas.height = 400;
-
-  ctx.drawImage(video, 0, 0, 400, 400);
+  canvas.width = 300;
+  canvas.height = 300;
+  ctx.drawImage(video, 0, 0, 300, 300);
 }
 
 async function postImage() {
   const token = localStorage.getItem("token");
   const caption = document.getElementById("caption").value;
 
+  console.log("TOKEN:", token);
+
   if (!token) {
-    alert("Not logged in");
+    alert("No token found");
     return;
   }
 
-  // compress image heavily
-  const imageData = canvas.toDataURL("image/jpeg", 0.5);
+  const imageData = canvas.toDataURL("image/jpeg", 0.4);
 
-  const res = await fetch("/api/posts", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + token
-    },
-    body: JSON.stringify({
-      image_url: imageData,
-      caption
-    })
-  });
+  console.log("Image size:", imageData.length);
 
-  if (!res.ok) {
-    alert("Post failed");
-    return;
+  try {
+    const res = await fetch("/api/posts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({
+        image_url: imageData,
+        caption
+      })
+    });
+
+    const data = await res.json();
+
+    console.log("Response:", data);
+
+    if (res.ok) {
+      alert("Posted successfully");
+      window.location.href = "/dashboard.html";
+    } else {
+      alert("Post failed: " + JSON.stringify(data));
+    }
+
+  } catch (err) {
+    console.log(err);
+    alert("Network error");
   }
-
-  window.location.href = "/dashboard.html";
 }
