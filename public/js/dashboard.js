@@ -6,10 +6,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  const res = await fetch("/api/protected", {
-    headers: {
-      Authorization: "Bearer " + token
-    }
+  const res = await fetch("https://axiom-backend-gxpv.onrender.com/api/protected", {
+    headers: { Authorization: "Bearer " + token }
   });
 
   const data = await res.json();

@@ -3,7 +3,7 @@ document.getElementById("loginBtn").onclick = async () => {
   const password = document.getElementById("password").value;
   const msg = document.getElementById("msg");
 
-  const res = await fetch("/api/auth/login", {
+  const res = await fetch("https://axiom-backend-gxpv.onrender.com/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password })
@@ -13,7 +13,7 @@ document.getElementById("loginBtn").onclick = async () => {
 
   if (data.token) {
     localStorage.setItem("token", data.token);
-    window.location.replace("/dashboard.html");
+    window.location.href = "/dashboard.html";
   } else {
     msg.innerText = data.error || "Login failed";
   }
