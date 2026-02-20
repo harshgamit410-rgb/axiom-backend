@@ -51,6 +51,11 @@ console.log("SERVER LIVE");
 
 import { execSync } from "child_process";
 
+});
+
+
+import { execSync } from "child_process";
+
 fastify.get("/__version", async (request, reply) => {
   try {
     const commit = execSync("git rev-parse --short HEAD").toString().trim();
