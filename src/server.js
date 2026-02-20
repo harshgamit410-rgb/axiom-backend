@@ -25,10 +25,6 @@ await app.register(postRoutes, { prefix: "/api" });
 await app.register(profileRoutes, { prefix: "/api" });
 
 /* VERSION CHECK */
-app.get("/__version", async () => {
-  return { version: "DEPLOY_eb4e117" };
-});
-
 /* STATIC FILES */
 await app.register(fastifyStatic, {
   root: path.join(__dirname, "../public"),
@@ -52,3 +48,15 @@ await app.listen({
 
 console.log("SERVER LIVE");
 // AI_V3_PROMPT_SUPPORT
+
+import { execSync } from "child_process";
+
+fastify.get("/__version", async (request, reply) => {
+  try {
+    const commit = execSync("git rev-parse --short HEAD").toString().trim();
+    return { version: "DEPLOY_" + commit };
+  } catch (e) {
+    return { version: "UNKNOWN" };
+  }
+});
+
