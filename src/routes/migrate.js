@@ -1,8 +1,7 @@
 export default async function (fastify, opts) {
-
   fastify.get("/__migrate_ai_v1", async () => {
 
-    const pool = fastify.pg;
+    const pool = fastify.pg.pool;
 
     await pool.query(`
       ALTER TABLE posts
@@ -16,5 +15,4 @@ export default async function (fastify, opts) {
 
     return { migrated: true };
   });
-
 }
