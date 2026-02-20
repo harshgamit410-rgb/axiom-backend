@@ -19,12 +19,11 @@ const app = Fastify();
 await initDB();
 await initPosts();
 
-/* REGISTER ROUTES (BEFORE LISTEN) */
+/* REGISTER ROUTES */
 await app.register(loginRoute, { prefix: "/api" });
 await app.register(postRoutes, { prefix: "/api" });
 await app.register(profileRoutes, { prefix: "/api" });
 
-/* VERSION CHECK */
 /* STATIC FILES */
 await app.register(fastifyStatic, {
   root: path.join(__dirname, "../public"),
@@ -40,15 +39,17 @@ app.get("/ping", async () => {
   return { status: "ok" };
 });
 
-/* START SERVER (ALWAYS LAST) */
-fastify.get("/__version", async (request, reply) => {
-  return { version: "DEPLOY_" + (process.env.RENDER_GIT_COMMIT || "LOCAL") };
+/* VERSION */
+app.get("/__version", async () => {
+  return {
+    version: "DEPLOY_" + (process.env.RENDER_GIT_COMMIT || "LOCAL")
+  };
 });
 
-import { execSync } from "child_process";
-
+/* START SERVER */
+await app.listen({
+  port: process.env.PORT || 4000,
   host: "0.0.0.0"
 });
 
 console.log("SERVER LIVE");
-
