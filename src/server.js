@@ -7,7 +7,6 @@ import { fileURLToPath } from "url";
 import loginRoute from "./routes/auth.js";
 import postRoutes from "./routes/posts.js";
 import profileRoutes from "./routes/profile.js";
-await app.register(migrateRoutes, { prefix: '' });
 
 import { initDB } from "./init-db.js";
 import { initPosts } from "./init-posts.js";
@@ -22,10 +21,10 @@ if (process.env.DATABASE_URL) await initDB();
 if (process.env.DATABASE_URL) await initPosts();
 
 /* REGISTER ROUTES */
+await app.register(migrateRoutes, { prefix: "" });
 await app.register(loginRoute, { prefix: "/api" });
 await app.register(postRoutes, { prefix: "/api" });
 await app.register(profileRoutes, { prefix: "/api" });
-await app.register(migrateRoutes, { prefix: '' });
 
 /* STATIC FILES */
 await app.register(fastifyStatic, {
