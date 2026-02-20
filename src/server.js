@@ -1,3 +1,4 @@
+import fastifyPostgres from "@fastify/postgres";
 import migrateRoutes from './routes/migrate.js';
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
@@ -15,6 +16,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = Fastify();
+await app.register(fastifyPostgres, {
+  connectionString: process.env.DATABASE_URL
+});
 
 /* INIT TABLES */
 if (process.env.DATABASE_URL) await initDB();
