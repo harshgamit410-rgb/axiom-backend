@@ -16,8 +16,8 @@ const __dirname = path.dirname(__filename);
 const app = Fastify();
 
 /* INIT TABLES */
-await initDB();
-await initPosts();
+if (process.env.DATABASE_URL) await initDB();
+if (process.env.DATABASE_URL) await initPosts();
 
 /* REGISTER ROUTES */
 await app.register(loginRoute, { prefix: "/api" });
