@@ -26,7 +26,7 @@ await app.register(profileRoutes, { prefix: "/api" });
 
 /* VERSION CHECK */
 app.get("/__version", async () => {
-  return { version: "ROUTE_FIX_V1" };
+  return { version: "DEPLOY_eb4e117" };
 });
 
 /* STATIC FILES */
