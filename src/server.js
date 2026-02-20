@@ -16,10 +16,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = Fastify();
-await app.register(fastifyPostgres, {
-  connectionString: process.env.DATABASE_URL
-});
-
+await app.register(fastifyPostgres, { connectionString: process.env.DATABASE_URL });
 /* INIT TABLES */
 if (process.env.DATABASE_URL) await initDB();
 if (process.env.DATABASE_URL) await initPosts();
