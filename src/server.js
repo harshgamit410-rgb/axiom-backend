@@ -1,4 +1,3 @@
-throw new Error("TEST_DEPLOY_CRASH");
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 import path from "path";
