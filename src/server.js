@@ -44,6 +44,9 @@ app.get("/ping", async () => {
 
 /* VERSION */
 app.get("/__version", async () => {
+app.get("/__check_env", async () => {
+  return { db: !!process.env.DATABASE_URL };
+});
   return {
     version: "DEPLOY_" + (process.env.RENDER_GIT_COMMIT || "LOCAL")
   };
