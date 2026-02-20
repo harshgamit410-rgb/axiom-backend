@@ -41,6 +41,17 @@ app.get("/ping", async () => {
 });
 
 /* START SERVER (ALWAYS LAST) */
+import { execSync } from "child_process";
+
+fastify.get("/__version", async (request, reply) => {
+  try {
+    const commit = execSync("git rev-parse --short HEAD").toString().trim();
+    return { version: "DEPLOY_" + commit };
+  } catch (e) {
+    return { version: "UNKNOWN" };
+  }
+});
+
 await app.listen({
   port: process.env.PORT || 4000,
   host: "0.0.0.0"
@@ -49,17 +60,6 @@ await app.listen({
 console.log("SERVER LIVE");
 // AI_V3_PROMPT_SUPPORT
 
-import { execSync } from "child_process";
-
-});
-
-
-import { execSync } from "child_process";
-
-fastify.get("/__version", async (request, reply) => {
-  try {
-    const commit = execSync("git rev-parse --short HEAD").toString().trim();
-    return { version: "DEPLOY_" + commit };
   } catch (e) {
     return { version: "UNKNOWN" };
   }
