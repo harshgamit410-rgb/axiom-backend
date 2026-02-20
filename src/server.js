@@ -41,19 +41,12 @@ app.get("/ping", async () => {
 });
 
 /* START SERVER (ALWAYS LAST) */
-import { execSync } from "child_process";
-
 fastify.get("/__version", async (request, reply) => {
-  try {
-    const commit = execSync("git rev-parse --short HEAD").toString().trim();
-    return { version: "DEPLOY_" + commit };
-  } catch (e) {
-    return { version: "UNKNOWN" };
-  }
+  return { version: "DEPLOY_" + (process.env.RENDER_GIT_COMMIT || "LOCAL") };
 });
 
-await app.listen({
-  port: process.env.PORT || 4000,
+import { execSync } from "child_process";
+
   host: "0.0.0.0"
 });
 
