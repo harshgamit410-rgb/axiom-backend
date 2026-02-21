@@ -1,3 +1,4 @@
+globalThis.AXIOM_BUILD = "BUILD_" + Date.now();
 console.log("🔥 AXIOM SERVER BUILD MARKER V9");
 import fastifyPostgres from "@fastify/postgres";
 import migrateRoutes from './routes/migrate.js';
@@ -44,6 +45,7 @@ app.get("/ping", async () => {
 });
 
 /* VERSION */
+app.get("/__fingerprint", async () => { return { build: globalThis.AXIOM_BUILD, file: import.meta.url }; });
 app.get("/__version", async () => {
 app.get("/__check_env", async () => {
   return { db: !!process.env.DATABASE_URL };
