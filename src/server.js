@@ -52,6 +52,14 @@ app.get("/__check_env", async () => {
   };
 });
 
+app.get("/__system_check", async () => {
+  return {
+    fastifyVersion: app.version,
+    hasDatabaseURL: !!process.env.DATABASE_URL,
+    hasPostgresPlugin: !!app.pg
+  };
+});
+
 /* START SERVER */
 await app.listen({
   port: process.env.PORT || 4000,
