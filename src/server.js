@@ -1,3 +1,4 @@
+console.log("🔥 AXIOM SERVER BUILD MARKER V9");
 import fastifyPostgres from "@fastify/postgres";
 import migrateRoutes from './routes/migrate.js';
 import Fastify from "fastify";
