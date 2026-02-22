@@ -60,6 +60,17 @@ app.get("/__version", async () => {
 
 /* SYSTEM CHECK */
 app.get("/__system_check", async () => {
+app.get("/__db_raw_test", async () => {
+  const { Client } = await import("pg");
+  const client = new Client({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+  await client.connect();
+  const res = await client.query("SELECT NOW()");
+  await client.end();
+  return { ok: true, time: res.rows[0] };
+});
   return {
     fastifyVersion: app.version,
     hasDatabaseURL: !!process.env.DATABASE_URL,
