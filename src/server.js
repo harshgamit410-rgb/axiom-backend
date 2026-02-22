@@ -13,7 +13,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = Fastify();
+import fastifyPostgres from "@fastify/postgres";
 await app.register(fastifyPostgres, {
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
