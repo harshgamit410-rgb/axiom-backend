@@ -1,3 +1,4 @@
+console.log("🔥 AXIOM DEPLOY TEST 777");
 import Fastify from "fastify";
 import fastifyStatic from "@fastify/static";
 
