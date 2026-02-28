@@ -1,13 +1,28 @@
-import axios from "axios";
+export async function generateHF(prompt) {
+  if (!process.env.HF_TOKEN) {
+    throw new Error("HF_TOKEN missing");
+  }
 
-const HF_API_URL = "https://api-inference.huggingface.co/models/gpt2"; 
-// you can replace gpt2 with any free model
-
-export async function hfGenerate(prompt) {
-  const resp = await axios.post(
-    HF_API_URL,
-    { inputs: prompt },
-    { headers: { "Content-Type": "application/json" } }
+  const response = await fetch(
+    "https://router.huggingface.co/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.HF_TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "meta-llama/Llama-3.1-8B-Instruct",
+        messages: [{ role: "user", content: prompt }]
+      })
+    }
   );
-  return resp.data?.generated_text || "";
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(JSON.stringify(data));
+  }
+
+  return data.choices?.[0]?.message?.content || "No output";
 }
