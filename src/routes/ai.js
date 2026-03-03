@@ -1,22 +1,45 @@
-export default async function (fastify, opts) {
+import { verifyToken } from "../services/authMiddleware.js";
+import { generateHF } from "../services/hf.js";
+import { v4 as uuidv4 } from "uuid";
 
-  const { generateText } = await import("../services/openai.js");
+export default async function (fastify) {
 
-  fastify.post("/ai/generate", async (request, reply) => {
+  fastify.post("/ai/generate", { preHandler: verifyToken }, async (request, reply) => {
     try {
       const { prompt } = request.body;
 
       if (!prompt) {
-        return reply.status(400).send({ error: "Prompt required" });
+        return reply.code(400).send({ error: "Prompt required" });
       }
 
-      const output = await generateText(prompt);
+      const output = await generateHF(prompt);
 
-      return { result: output };
+      const id = uuidv4();
+
+      await fastify.pg.query(
+        `INSERT INTO posts 
+        (id, user_id, content, prompt, ai_generated, type, visibility) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [
+          id,
+          request.user.userId,
+          output,
+          prompt,
+          true,
+          'ai',
+          'private'
+        ]
+      );
+
+      return {
+        success: true,
+        id,
+        content: output
+      };
 
     } catch (err) {
-      console.error("AI ERROR:", err);
-      return reply.status(500).send({ error: err.message });
+      console.error(err);
+      return reply.code(500).send({ error: err.message || "AI generation failed" });
     }
   });
 
