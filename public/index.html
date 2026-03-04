@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Axiom</title>
+</head>
+<body>
+
+<h1>Axiom AI Marketplace</h1>
+
+<div id="apps"></div>
+
+<script>
+
+fetch("/api/apps")
+.then(res => res.json())
+.then(data => {
+
+  const container = document.getElementById("apps");
+
+  data.apps.forEach(app => {
+
+    const div = document.createElement("div");
+
+    div.innerHTML = `
+      <h3>${app.title}</h3>
+      <button onclick="run('${app.id}')">Run</button>
+    `;
+
+    container.appendChild(div);
+
+  });
+
+});
+
+function run(id){
+  window.location = "/app.html?id=" + id;
+}
+
+</script>
+
+</body>
+</html>

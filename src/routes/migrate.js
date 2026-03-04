@@ -1,49 +1,79 @@
 export default async function (fastify) {
 
-  fastify.get("/__migrate_all", async () => {
+/* USERS TABLE */
+fastify.get("/__migrate_users", async () => {
 
-    await fastify.pg.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        id UUID PRIMARY KEY,
-        email TEXT UNIQUE NOT NULL,
-        password_hash TEXT,
-        role TEXT DEFAULT 'user',
-        plan TEXT DEFAULT 'free',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
+await fastify.pg.query(`
+CREATE TABLE IF NOT EXISTS users (
+id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+email TEXT UNIQUE NOT NULL,
+password_hash TEXT NOT NULL,
+role TEXT DEFAULT 'user',
+plan TEXT DEFAULT 'free',
+created_at TIMESTAMP DEFAULT NOW()
+);
+`);
 
-    await fastify.pg.query(`
-      CREATE TABLE IF NOT EXISTS posts (
-        id UUID PRIMARY KEY,
-        user_id UUID REFERENCES users(id),
-        content TEXT,
-        image_url TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
+return { migrated_users:true };
 
-    return { migrated: true };
-  });
+});
 
-  fastify.get("/__upgrade_posts_v2", async () => {
 
-    await fastify.pg.query(`
-      ALTER TABLE posts
-      ADD COLUMN IF NOT EXISTS content TEXT;
-    `);
+/* POSTS TABLE */
+fastify.get("/__migrate_posts", async () => {
 
-    return { upgraded: true };
-  });
+await fastify.pg.query(`
+CREATE TABLE IF NOT EXISTS posts (
+id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+user_id UUID,
+content TEXT,
+image_url TEXT,
+caption TEXT,
+visibility TEXT DEFAULT 'public',
+created_at TIMESTAMP DEFAULT NOW()
+);
+`);
 
-  fastify.get("/__fix_posts_constraints", async () => {
+return { migrated_posts:true };
 
-    await fastify.pg.query(`
-      ALTER TABLE posts
-      ALTER COLUMN image_url DROP NOT NULL;
-    `);
+});
 
-    return { fixed: true };
-  });
+
+/* AI STUDIO DRAFTS */
+fastify.get("/__create_workspace_tables", async () => {
+
+await fastify.pg.query(`
+CREATE TABLE IF NOT EXISTS workspace_drafts (
+id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+user_id UUID,
+title TEXT,
+type TEXT,
+data JSONB,
+created_at TIMESTAMP DEFAULT NOW()
+);
+`);
+
+return { workspace_tables:"created" };
+
+});
+
+
+/* PUBLISHED AI APPS */
+fastify.get("/__create_apps_table", async () => {
+
+await fastify.pg.query(`
+CREATE TABLE IF NOT EXISTS apps (
+id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+user_id UUID,
+title TEXT,
+type TEXT,
+config JSONB,
+created_at TIMESTAMP DEFAULT NOW()
+);
+`);
+
+return { apps_table:"created" };
+
+});
 
 }

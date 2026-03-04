@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Run AI App</title>
+</head>
+<body>
+
+<h2>Run AI Tool</h2>
+
+<input id="input" placeholder="Enter input"/>
+<button onclick="run()">Run</button>
+
+<pre id="result"></pre>
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+const appId = params.get("id");
+
+function run(){
+
+  const input = document.getElementById("input").value;
+
+  fetch("/api/apps/run",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json"
+    },
+    body:JSON.stringify({
+      appId,
+      input
+    })
+  })
+  .then(r=>r.json())
+  .then(d=>{
+    document.getElementById("result").innerText = d.output;
+  });
+
+}
+
+</script>
+
+</body>
+</html>
