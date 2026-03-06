@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Axiom AI Marketplace</title>
+<title>My Apps</title>
+
 <style>
+
 body{
 font-family:Arial;
 background:#0f172a;
@@ -11,7 +13,7 @@ padding:40px;
 }
 
 h1{
-font-size:40px;
+font-size:36px;
 margin-bottom:30px;
 }
 
@@ -23,29 +25,30 @@ border-radius:10px;
 }
 
 button{
-background:#6366f1;
-color:white;
+background:#22c55e;
 border:none;
 padding:10px 20px;
+color:white;
 border-radius:6px;
 cursor:pointer;
 }
 
 button:hover{
-background:#4f46e5;
+background:#16a34a;
 }
+
 </style>
 </head>
 
 <body>
 
-<h1>Axiom AI Marketplace</h1>
+<h1>My Installed AI Apps</h1>
 
 <div id="apps"></div>
 
 <script>
 
-fetch("/api/apps")
+fetch("/api/apps/installed")
 .then(r=>r.json())
 .then(data=>{
 
@@ -59,7 +62,7 @@ div.className="card"
 
 div.innerHTML=`
 <h3>${app.title}</h3>
-<button onclick="run('${app.id}')">Run Tool</button>
+<button onclick="run('${app.id}')">Run</button>
 `
 
 container.appendChild(div)

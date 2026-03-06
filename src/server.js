@@ -1,5 +1,8 @@
 import fastifyStatic from "@fastify/static";
 import workspaceRoutes from "./routes/workspace.js";
+import studioRoutes from "./modules/studio/routes.js";
+import workflowRoutes from "./modules/workflows/routes.js";
+import { installedAppsRoute } from "./routes/workspace.js";
 import fastifyJwt from "@fastify/jwt";
 import Fastify from "fastify";
 import fastifyPostgres from "@fastify/postgres";
@@ -36,6 +39,9 @@ await app.register(userRoutes);
 await app.register(postsRoutes);
 await app.register(aiRoutes, { prefix: "/api" });
 await app.register(workspaceRoutes, { prefix: "/api" });
+await app.register(studioRoutes, { prefix: "/api" });
+await app.register(workflowRoutes, { prefix: "/api" });
+await app.register(installedAppsRoute, { prefix: "/api" });
 await app.register(hfRoutes, { prefix: "/api" });
 
 app.get("/ping", async () => ({ status: "ok" }));
