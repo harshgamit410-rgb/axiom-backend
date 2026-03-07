@@ -1,5 +1,7 @@
 import fetch from "node-fetch";
 
+const API_BASE = process.env.API_BASE || "https://axiom-backend-1.onrender.com";
+
 export async function runWorkflow(fastify, workflowId, input){
 
   const steps = await fastify.pg.query(
@@ -20,7 +22,7 @@ export async function runWorkflow(fastify, workflowId, input){
 
     const prompt = template.replace("{input}", currentInput);
 
-    const response = await fetch("http://localhost:4000/api/ai/generate",{
+    const response = await fetch(`${API_BASE}/api/ai/generate`,{
       method:"POST",
       headers:{
         "Content-Type":"application/json"
