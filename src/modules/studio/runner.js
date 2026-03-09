@@ -11,7 +11,7 @@ const template = tool.rows[0].prompt_template;
 
 const prompt = template.replace("{input}",input);
 
-const response = await fetch("http://localhost:4000/api/ai/generate",{
+const response = await fetch("https://axiom-backend-1.onrender.com/api/ai/generate",{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
