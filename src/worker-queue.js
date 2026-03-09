@@ -8,7 +8,7 @@ import { runWorkflow } from "./modules/workflows/runner.js";
 dotenv.config();
 
 const connection = new IORedis({
-host:"127.0.0.1",
+const connection = new IORedis(process.env.REDIS_URL);
 port:6379,
 maxRetriesPerRequest:null
 });
