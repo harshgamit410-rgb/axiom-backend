@@ -71,3 +71,4 @@ await app.listen({
 });
 
 console.log("🔥 AXIOM HYBRID MONOLITH LIVE");
+// render rebuild
