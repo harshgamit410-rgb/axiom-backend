@@ -7,11 +7,7 @@ import { runWorkflow } from "./modules/workflows/runner.js";
 
 dotenv.config();
 
-const connection = new IORedis({
 const connection = new IORedis(process.env.REDIS_URL);
-port:6379,
-maxRetriesPerRequest:null
-});
 
 const app = Fastify();
 
