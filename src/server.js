@@ -1,6 +1,13 @@
+import platformRoutes from "./modules/platform/routes.js";
+import creatorRoutes from "./modules/creator/routes.js";
+import { trendingToolsRoute } from "./modules/studio/trending.js";
+import jobsRoutes from "./routes/jobs.js";
 import fastifyStatic from "@fastify/static";
 import workspaceRoutes from "./routes/workspace.js";
 import studioRoutes from "./modules/studio/routes.js";
+import { toolRunRoute } from "./modules/studio/routes.js";
+import { installToolRoute } from "./modules/studio/routes.js";
+import { installedToolsRoute } from "./modules/studio/routes.js";
 import workflowRoutes from "./modules/workflows/routes.js";
 import { installedAppsRoute } from "./routes/workspace.js";
 import fastifyJwt from "@fastify/jwt";
@@ -33,6 +40,7 @@ await app.register(fastifyPostgres, {
 });
 
 /* REGISTER ROUTES */
+await app.register(jobsRoutes, { prefix: "/api" });
 await app.register(migrateRoutes);
 await app.register(authRoutes);
 await app.register(userRoutes);
@@ -40,6 +48,12 @@ await app.register(postsRoutes);
 await app.register(aiRoutes, { prefix: "/api" });
 await app.register(workspaceRoutes, { prefix: "/api" });
 await app.register(studioRoutes, { prefix: "/api" });
+await app.register(toolRunRoute,{prefix:"/api"});
+await app.register(installToolRoute,{prefix:"/api"});
+await app.register(installedToolsRoute,{prefix:"/api"});
+await app.register(creatorRoutes,{prefix:"/api"});
+await app.register(platformRoutes,{prefix:"/api"});
+await app.register(trendingToolsRoute,{prefix:"/api"});
 await app.register(workflowRoutes, { prefix: "/api" });
 await app.register(installedAppsRoute, { prefix: "/api" });
 await app.register(hfRoutes, { prefix: "/api" });

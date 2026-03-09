@@ -1,3 +1,4 @@
+import { aiQueue } from "../../services/ai-queue.js";
 import { runWorkflow } from "./runner.js";
 
 export default async function (fastify){
@@ -45,9 +46,20 @@ fastify.post("/workflows/run", async (req)=>{
 
 const {workflowId,input}=req.body
 
-const output = await runWorkflow(fastify,workflowId,input)
+const job=await fastify.pg.query(`
+INSERT INTO ai_runs (workflow_id,status,input)
+VALUES ($1,'queued',$2)
+RETURNING id`,
+[workflowId,input]
+)
 
-return {output}
+console.log("QUEUE PUSH",job.rows[0].id);
+await aiQueue.add("workflow",{
+jobId:job.rows[0].id,
+workflowId,
+input
+});
+return {queued:true,jobId:job.rows[0].id}
 
 })
 

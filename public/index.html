@@ -1,65 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Axiom AI Marketplace</title>
-<style>
-body{
-font-family:Arial;
-background:#0f172a;
-color:white;
-padding:40px;
-}
-
-h1{
-font-size:40px;
-margin-bottom:30px;
-}
-
-.card{
-background:#1e293b;
-padding:20px;
-margin-bottom:20px;
-border-radius:10px;
-}
-
-button{
-background:#6366f1;
-color:white;
-border:none;
-padding:10px 20px;
-border-radius:6px;
-cursor:pointer;
-}
-
-button:hover{
-background:#4f46e5;
-}
-</style>
+<title>Axiom Marketplace</title>
+<link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
 
 <h1>Axiom AI Marketplace</h1>
 
-<div id="apps"></div>
+<div id="tools"></div>
 
 <script>
 
-fetch("/api/apps")
+fetch("/api/tools/trending")
 .then(r=>r.json())
 .then(data=>{
 
-const container=document.getElementById("apps")
+const container=document.getElementById("tools")
 
-data.apps.forEach(app=>{
+data.tools.forEach(tool=>{
 
 const div=document.createElement("div")
 
-div.className="card"
+div.className="tool-card"
 
 div.innerHTML=`
-<h3>${app.title}</h3>
-<button onclick="run('${app.id}')">Run Tool</button>
+<h3>${tool.title}</h3>
+<p>Runs: ${tool.runs}</p>
+<button onclick="run('${tool.id}')">Run Tool</button>
 `
 
 container.appendChild(div)
@@ -69,7 +38,7 @@ container.appendChild(div)
 })
 
 function run(id){
-window.location="/app.html?id="+id
+window.location="/tool.html?id="+id
 }
 
 </script>

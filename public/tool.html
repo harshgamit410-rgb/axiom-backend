@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Run Tool</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+<h2>Run AI Tool</h2>
+
+<input id="input" placeholder="Enter prompt">
+<button onclick="run()">Run</button>
+
+<pre id="result"></pre>
+
+<script>
+
+const params=new URLSearchParams(window.location.search)
+const toolId=params.get("id")
+
+function run(){
+
+const input=document.getElementById("input").value
+
+fetch("/api/tools/run",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+toolId,
+input
+})
+})
+.then(r=>r.json())
+.then(data=>{
+document.getElementById("result").innerText=data.output
+})
+
+}
+
+</script>
+
+</body>
+</html>
