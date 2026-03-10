@@ -20,6 +20,13 @@ return {tool:result.rows[0]}
 })
 
 fastify.get("/studio/tools", async ()=>{
+fastify.get("/tools/marketplace", async () => {
+const result = await fastify.pg.query(
+"SELECT id,title FROM ai_tools WHERE is_public=true ORDER BY created_at DESC"
+);
+return {tools:result.rows};
+});
+
 
 const result=await fastify.pg.query(
 "SELECT * FROM ai_tools ORDER BY created_at DESC"
@@ -37,12 +44,14 @@ export async function toolRunRoute(fastify){
 
 fastify.post("/tools/run", async (req)=>{
 
-const {toolId,input}=req.body;
+const {toolId,input,projectId}=req.body;
 
-const output = await runTool(fastify,toolId,input);
+const output = await runTool(fastify,toolId,input,projectId);
 
 await trackEvent(fastify,"tool_run",null,toolId,{input});
 await recordToolRun(fastify,toolId);
+await fastify.pg.query("INSERT INTO usage_logs (user_id,tool_id,tokens,cost) VALUES ($1,$2,$3,$4)",[req.body.userId || null,toolId,100,0.001]);
+await recordCreatorRevenue(fastify,toolId);
 return {output};
 
 });
@@ -85,5 +94,53 @@ WHERE app_installs.user_id = $1`,
 return {tools:result.rows};
 
 });
+
+}
+
+export async function marketplaceToolsRoute(fastify){
+
+fastify.get("/tools/marketplace", async () => {
+
+const result = await fastify.pg.query(
+"SELECT id,title FROM ai_tools WHERE is_public=true ORDER BY created_at DESC"
+);
+
+return {tools:result.rows};
+
+});
+
+}
+
+export async function rateLimitCheck(fastify,userId){
+
+const limit = await fastify.pg.query(
+"SELECT daily_limit FROM user_limits WHERE user_id=$1",
+[userId]
+)
+
+const usage = await fastify.pg.query(
+"SELECT COUNT(*) as runs FROM usage_logs WHERE user_id=$1 AND created_at > NOW() - INTERVAL '1 day'",
+[userId]
+)
+
+if(limit.rows.length && usage.rows[0].runs >= limit.rows[0].daily_limit){
+throw new Error("Daily AI limit reached")
+}
+
+}
+
+export async function recordCreatorRevenue(fastify,toolId){
+
+const creator = await fastify.pg.query(
+"SELECT user_id FROM ai_tools WHERE id=$1",
+[toolId]
+)
+
+if(!creator.rows.length || !creator.rows[0].user_id) return
+
+await fastify.pg.query(
+"INSERT INTO creator_earnings (tool_id,creator_id,runs,revenue) VALUES ($1,$2,1,0.002) ON CONFLICT (tool_id) DO UPDATE SET runs=creator_earnings.runs+1,revenue=creator_earnings.revenue+0.002",
+[toolId,creator.rows[0].user_id]
+)
 
 }

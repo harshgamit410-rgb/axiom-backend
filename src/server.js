@@ -1,4 +1,15 @@
-import platformRoutes from "./modules/platform/routes.js";
+import platformRoutes from "./routes/platform.js";
+import { usageRoute } from "./modules/ai/routes.js";
+import { tagRoute } from "./modules/social/routes.js";
+import { reportRoute } from "./modules/social/routes.js";
+import { bookmarkRoute } from "./modules/social/routes.js";
+import { messageRoute } from "./modules/social/routes.js";
+import { notificationRoute } from "./modules/social/routes.js";
+import { followRoute } from "./modules/social/routes.js";
+import { likeRoute, commentRoute } from "./modules/social/routes.js";
+import socialRoutes from "./modules/social/routes.js";
+import { marketplaceToolsRoute } from "./modules/studio/routes.js";
+import workspaceModule from "./modules/workspace/routes.js";
 import creatorRoutes from "./modules/creator/routes.js";
 import { trendingToolsRoute } from "./modules/studio/trending.js";
 import jobsRoutes from "./routes/jobs.js";
@@ -40,6 +51,17 @@ await app.register(fastifyPostgres, {
 });
 
 /* REGISTER ROUTES */
+await app.register(socialRoutes,{prefix:"/api"});
+await app.register(likeRoute,{prefix:"/api"});
+await app.register(commentRoute,{prefix:"/api"});
+await app.register(followRoute,{prefix:"/api"});
+await app.register(notificationRoute,{prefix:"/api"});
+await app.register(messageRoute,{prefix:"/api"});
+await app.register(bookmarkRoute,{prefix:"/api"});
+await app.register(reportRoute,{prefix:"/api"});
+await app.register(tagRoute,{prefix:"/api"});
+await app.register(marketplaceToolsRoute,{prefix:"/api"});
+await app.register(workspaceModule,{prefix:"/api"});
 await app.register(jobsRoutes, { prefix: "/api" });
 await app.register(migrateRoutes);
 await app.register(authRoutes);
@@ -52,11 +74,12 @@ await app.register(toolRunRoute,{prefix:"/api"});
 await app.register(installToolRoute,{prefix:"/api"});
 await app.register(installedToolsRoute,{prefix:"/api"});
 await app.register(creatorRoutes,{prefix:"/api"});
-await app.register(platformRoutes,{prefix:"/api"});
 await app.register(trendingToolsRoute,{prefix:"/api"});
 await app.register(workflowRoutes, { prefix: "/api" });
 await app.register(installedAppsRoute, { prefix: "/api" });
 await app.register(hfRoutes, { prefix: "/api" });
+await app.register(platformRoutes,{prefix:"/api"});
+await app.register(usageRoute,{prefix:"/api"});
 
 app.get("/ping", async () => ({ status: "ok" }));
 
