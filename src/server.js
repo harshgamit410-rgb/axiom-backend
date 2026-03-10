@@ -1,4 +1,3 @@
-import fastifyStatic from "@fastify/static";
 import rankedFeedRoute from "./modules/social/feed-route.js";
 import toolGraphRoute from "./modules/platform/tool-graph-route.js";
 import { remixToolRoute } from "./modules/studio/routes.js";
@@ -44,7 +43,6 @@ dotenv.config();
 
 const app = Fastify({ logger: true });
 import path from "path";
-await app.register(fastifyStatic,{root:path.join(process.cwd(),"public")});
 import path from "path";
 import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
