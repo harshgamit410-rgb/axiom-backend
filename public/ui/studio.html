@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Axiom Studio</title>
+<style>
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+padding:40px;
+}
+
+.tool{
+background:#1e293b;
+padding:20px;
+margin:10px;
+border-radius:10px;
+}
+
+button{
+background:#22c55e;
+border:none;
+padding:10px;
+color:white;
+border-radius:5px;
+cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Axiom AI Studio</h1>
+<div id="tools"></div>
+
+<script>
+
+async function loadTools(){
+
+const res = await fetch("/api/tools/marketplace")
+const data = await res.json()
+
+const container = document.getElementById("tools")
+
+data.tools.forEach(tool=>{
+
+const div = document.createElement("div")
+div.className="tool"
+
+div.innerHTML = `
+<h3>${tool.title}</h3>
+<button onclick="runTool('${tool.id}')">Run Tool</button>
+`
+
+container.appendChild(div)
+
+})
+
+}
+
+async function runTool(id){
+
+const input = prompt("Enter input")
+
+const res = await fetch("/api/tools/run",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+toolId:id,
+userId:"e1824a28-fa3c-4a43-85fd-40afbb0f701b",
+projectId:"5d96a8bf-9b96-4836-b58d-f8f85da589fe",
+input
+})
+})
+
+const data = await res.json()
+
+alert(data.output)
+
+}
+
+loadTools()
+
+</script>
+
+</body>
+</html>
