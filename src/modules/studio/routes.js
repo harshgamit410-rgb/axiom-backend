@@ -1,3 +1,4 @@
+import { emitEvent } from "../../services/event-bus.js";
 import { recordToolRun } from "../../services/earnings.js";
 import { trackEvent } from "../../services/events.js";
 export default async function (fastify){
@@ -44,7 +45,7 @@ export async function toolRunRoute(fastify){
 
 fastify.post("/tools/run", async (req)=>{
 
-const {toolId,input,projectId}=req.body;
+const {toolId,input,projectId,userId}=req.body;
 
 const output = await runTool(fastify,toolId,input,projectId);
 
@@ -52,6 +53,8 @@ await trackEvent(fastify,"tool_run",null,toolId,{input});
 await recordToolRun(fastify,toolId);
 await fastify.pg.query("INSERT INTO usage_logs (user_id,tool_id,tokens,cost) VALUES ($1,$2,$3,$4)",[req.body.userId || null,toolId,100,0.001]);
 await recordCreatorRevenue(fastify,toolId);
+await recordActivity(fastify,userId,"tool_run","tool",toolId);
+await emitEvent(fastify,"tool_run",{toolId,userId});
 return {output};
 
 });
@@ -142,5 +145,44 @@ await fastify.pg.query(
 "INSERT INTO creator_earnings (tool_id,creator_id,runs,revenue) VALUES ($1,$2,1,0.002) ON CONFLICT (tool_id) DO UPDATE SET runs=creator_earnings.runs+1,revenue=creator_earnings.revenue+0.002",
 [toolId,creator.rows[0].user_id]
 )
+
+}
+
+export async function recordActivity(fastify,userId,action,type,id){
+
+await fastify.pg.query(
+"INSERT INTO activity (user_id,action,entity_type,entity_id) VALUES ($1,$2,$3,$4)",
+[userId,action,type,id]
+)
+
+}
+
+export async function remixToolRoute(fastify){
+
+fastify.post("/tools/remix", async (req)=>{
+
+const { userId, toolId, title } = req.body;
+
+const original = await fastify.pg.query(
+"SELECT * FROM ai_tools WHERE id=$1",
+[toolId]
+);
+
+if(original.rows.length === 0){
+return {error:"tool not found"};
+}
+
+const tool = original.rows[0];
+
+const result = await fastify.pg.query(
+`INSERT INTO ai_tools (user_id,title,prompt_template,parent_tool)
+VALUES ($1,$2,$3,$4)
+RETURNING *`,
+[userId,title || tool.title,tool.prompt_template,toolId]
+);
+
+return {tool:result.rows[0]};
+
+});
 
 }
