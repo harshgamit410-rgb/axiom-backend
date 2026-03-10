@@ -50,7 +50,9 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 await app.register(fastifyStatic,{
-root:path.join(__dirname,"../public")
+root:path.join(__dirname,"../public"),
+prefix:"/",
+decorateReply:false
 });
 await app.register(fastifyJwt, { secret: "process.env.JWT_SECRET" });
 
