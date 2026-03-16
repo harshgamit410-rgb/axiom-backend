@@ -127,7 +127,12 @@ export default async function (fastify) {
     const prompt = config.prompt + ": " + input;
 
 
-    const { aiQueue } = await import("../services/queue.js");
+    let aiQueue = null;
+    try {
+      ({ aiQueue } = await import("../services/queue.js"));
+    } catch (e) {
+      aiQueue = null;
+    }
 
     const job = await aiQueue.add("ai-job", {
       prompt

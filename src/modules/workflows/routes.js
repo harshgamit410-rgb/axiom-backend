@@ -1,4 +1,4 @@
-import { aiQueue } from "../../services/ai-queue.js";
+let aiQueue = null;
 import { runWorkflow } from "./runner.js";
 
 export default async function (fastify){
@@ -54,7 +54,7 @@ RETURNING id`,
 )
 
 console.log("QUEUE PUSH",job.rows[0].id);
-await aiQueue.add("workflow",{
+if (aiQueue) await aiQueue.add("workflow",{
 jobId:job.rows[0].id,
 workflowId,
 input
